@@ -12,7 +12,17 @@ use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
-    //
+    public function index(): JsonResponse
+    {
+        $user = User::all();
+        return $this->sendResponse($user->toArray(), 'User retrieved successfully.');
+    }
+
+    public function getCurrentUser() {
+        return Auth::user();
+    }
+
+    // register
     public function register(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -23,7 +33,7 @@ class RegisterController extends Controller
         ]);
 
         if($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            return $this->sendResponse($validator->errors(), 'Validation Error.', false);
         }
 
         $input = $request->all();
@@ -37,6 +47,7 @@ class RegisterController extends Controller
 
     public function login (Request $request): JsonResponse
     {
+        error_log(print_r($request->all(), true)); // print request data
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             $success['token'] = $user->createToken('MyApp')->accessToken;
@@ -45,7 +56,7 @@ class RegisterController extends Controller
             return $this->sendResponse($success, 'User login successfully.');
         }
         else {
-            return $this->sendError('Unauthorised', ['error' => 'Unauthorised']);
+            return $this->sendResponse('Unauthorized', ['error' => 'Unauthorized'], false);
         }
     }
 }
