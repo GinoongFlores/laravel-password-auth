@@ -48,6 +48,12 @@ class RegisterController extends Controller
     public function login (Request $request): JsonResponse
     {
         error_log(print_r($request->all(), true)); // print request data
+
+        $user = User::where('email', $request->email)->first();
+        if(!$user) {
+            return $this->sendError('No user found', ['error' => 'No user found with this email address '], 404, false);
+        }
+
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             $success['token'] = $user->createToken('MyApp')->accessToken;
@@ -56,7 +62,7 @@ class RegisterController extends Controller
             return $this->sendResponse($success, 'User login successfully.');
         }
         else {
-            return $this->sendResponse('Unauthorized', ['error' => 'Unauthorized'], false);
+            return $this->sendError('Unauthorized', ['error' => 'Unauthorized'], 401, false);
         }
     }
 }
