@@ -23,4 +23,5 @@ Route::get('view', [RegisterController::class, 'index']);
 Route::middleware('auth:api')->group(function () {
     Route::resource('products', ProductController::class);
     Route::get('user', [RegisterController::class, 'getCurrentUser']);
+    Route::post('logout', [RegisterController::class, 'logout']);
 });
